@@ -1,49 +1,52 @@
 package com.example.notesappcompose.viewmodel
 
-import android.provider.ContactsContract
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.notesappcompose.data.Notes
+import com.example.notesappcompose.data.model.Notes
+import com.example.notesappcompose.data.repoImpl.NotesRepositoryImpl
+import com.example.notesappcompose.domain.repoInterface.NotesRepository
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 
-class NotesViewModel : ViewModel() {
-    private var notesSample = mutableListOf(
-        Notes(1, "Note 1", "Description for Note1"),
-        Notes(2, "Note 2", "Description for Note2"),
-        Notes(3, "Note 3", "Description for Note3"),
-        Notes(4, "Note 4", "Description for Note4"),
-        Notes(5, "Note 5", "Description for Note5"),
-        Notes(6, "Note 6", "Description for Note6"),
-        Notes(7, "Note 7", "Description for Note7"),
-        Notes(8, "Note 8", "Description for Note8"),
-        Notes(9, "Note 9", "Description for Note9"),
-        Notes(10, "Note 10", "Description for Note10")
-    )
+class NotesViewModel(private val notesRepository: NotesRepository) : ViewModel() {
 
-    private var _notesList = notesSample.toMutableStateList()
-    val notesList: List<Notes>
-        get() = _notesList
+    private val _notesList = MutableStateFlow<List<Notes>>(emptyList())
+    val notesList : StateFlow<List<Notes>> =  _notesList
 
+    init {
+        getNotes()
+    }
+    private fun getNotes(){
+        viewModelScope.launch(Dispatchers.IO) {
+            notesRepository.getNotes()
+                .catch { e->
+                    //Log error here
+                }
+                .collect {
+                    _notesList.value = it
+                }
+        }
+    }
 
     fun addEditNotes(id: Int, title: String, description: String) {
-        if (id == -1) {
-            //  notesSample.add(Notes(notesSample.size, title, description))
-            _notesList.add(Notes(_notesList.size+1, title = title, description = description))
-        } else {
-            val note = _notesList.find { note ->
-                note.id == id
-            }
-            note?.let {
-                note.title = title
-                note.description = description
-            }
-
+        viewModelScope.launch(Dispatchers.IO) {
+            notesRepository.addEditNote(id = id, title = title, description = description)
+            getNotes()
         }
-
     }
 
     fun deleteNote(note: Notes) {
-        _notesList.remove(note)
+        viewModelScope.launch(Dispatchers.IO) {
+            notesRepository.deleteNote(note = note)
+            getNotes()
+        }
     }
+
 
 
 }

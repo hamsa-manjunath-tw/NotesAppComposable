@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -61,4 +62,17 @@ dependencies {
 
     // add this dependency for navigation
     implementation "androidx.navigation:navigation-compose:2.5.0"
+
+    // add this for Koin dependency
+    implementation "io.insert-koin:koin-android:3.2.0-beta-1"
+    implementation "io.insert-koin:koin-androidx-navigation:3.2.0-beta-1"
+    implementation "io.insert-koin:koin-androidx-compose:3.2.0-beta-1"
+    testImplementation "io.insert-koin:koin-test-junit4:3.2.0-beta-1"
+
+    // Room
+    implementation "androidx.room:room-runtime:2.4.2"
+
+    // Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:2.4.2"
+    kapt "androidx.room:room-compiler:2.4.2"
 }

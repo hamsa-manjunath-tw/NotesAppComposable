@@ -4,24 +4,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.notesappcompose.data.Notes
-import com.example.notesappcompose.viewmodel.NotesViewModel
+import com.example.notesappcompose.data.model.Notes
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AddEditNote(
     navController: NavHostController,
     addEditNotes: (Int, String, String) -> Unit,
     id: Int,
-    notes: List<Notes>
+    notesStateFlow: StateFlow<List<Notes>>
 ) {
 
-    var title by rememberSaveable { mutableStateOf(getTitle(id, notes)) }
+    val notes = notesStateFlow.collectAsState().value
+    var title by rememberSaveable { mutableStateOf(getTitle(id, notes)
+    ) }
     var description by rememberSaveable { mutableStateOf(getDescription(id, notes)) }
 
     Column(
